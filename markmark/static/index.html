@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markmark</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#fff;--soft:#eeece6;--ink:#20201d;--mute:#6d6b64;--line:#c9c6bc;--brand:#b3261e;--ok:#22703f;--warn:#9a5b00;--hl:#ffe9a8}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1b19;--panel:#262624;--soft:#32322f;--ink:#ecebe6;--mute:#a5a39b;--line:#55534d;--brand:#f0837a;--ok:#74c893;--warn:#e9b45f;--hl:#6b5414}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,"Segoe UI",sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--panel)}
+header b{font-size:18px;color:var(--brand);cursor:pointer}
+header span{color:var(--mute);flex:1}
+main{max-width:1180px;margin:0 auto;padding:20px}
+h2{font-size:20px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}
+.panel{background:var(--panel);border-radius:10px;padding:16px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:800px){.split{grid-template-columns:1fr}}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>.grow{flex:1;min-width:140px}
+button{font:inherit;padding:6px 12px;border:0;border-radius:7px;background:var(--soft);color:var(--ink);cursor:pointer}
+button.main{background:var(--brand);color:var(--panel)}button:disabled{opacity:.45;cursor:not-allowed}
+button.link{background:none;padding:2px 4px;color:var(--mute)}
+input,select,textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);width:100%}
+input[type=checkbox]{width:auto}textarea{min-height:110px}
+label{display:block;margin-bottom:8px;color:var(--mute);font-size:13px}label.check{display:flex;gap:6px;color:var(--ink);font-size:15px}
+ul.plain{list-style:none;margin:0;padding:0}ul.plain li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0}
+.clickable{cursor:pointer;background:none;padding:0;text-align:left;color:var(--ink);text-decoration:underline}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--soft)}th{color:var(--mute);font-size:13px;font-weight:500}
+.muted{color:var(--mute)}.warn{color:var(--warn)}.good{color:var(--ok)}.bad{color:var(--brand)}
+pre{white-space:pre-wrap;word-break:break-word;margin:0;font:13px/1.5 ui-monospace,Consolas,monospace;max-height:75vh;overflow:auto}
+mark{background:var(--hl);color:inherit}
+.finding{background:var(--soft);border-radius:8px;padding:10px;margin-bottom:10px}.finding.done{opacity:.75}
+.tag{font-size:12px;color:var(--mute);margin-right:8px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:8px 14px;border-radius:8px;display:none;max-width:90vw}
+</style>
+</head>
+<body>
+<header><b onclick="go('home')">Markmark</b><span id="tagline"></span>
+<select id="lang" style="width:auto" aria-label="Language"><option value="id">ID</option><option value="en">EN</option></select>
+<button id="setBtn" onclick="go('settings')"></button></header>
+<main id="app"></main><div id="toast" role="status"></div>
+<script>
+const T={id:{tagline:"Temukan kesalahan lebih cepat. Nilai tetap di tangan Anda.",settings:"Pengaturan",classes:"Kelas",subjects:"Mata pelajaran",newClass:"Nama kelas baru",newSubject:"Nama mata pelajaran baru",add:"Tambah",students:"murid",studentList:"Daftar murid",studentHint:"Satu murid per baris: nomor, nama",linked:"Kelas yang mengikuti",weeks:"Minggu",addWeek:"Tambah minggu",week:"Minggu",back:"Kembali",del:"Hapus",confirmDel:"Hapus? Data di dalamnya ikut terhapus.",pickClass:"Kelas",module:"Modul",key:"Kunci jawaban",answers:"Jawaban siswa",noModule:"Belum ada modul",uploadModule:"Unggah modul",uploadKey:"Unggah kunci",genKey:"Buat dengan AI",genHint:"Perlu modul terlebih dulu",draft:"Draf AI: tinjau lalu setujui sebelum dipakai",approved:"Disetujui",noKey:"Belum ada kunci jawaban",save:"Simpan",approve:"Setujui",uploadAnswers:"Unggah jawaban (file atau zip)",startCheck:"Mulai koreksi",cancel:"Hentikan",key_missing:"Kunci jawaban belum ada",key_not_approved:"Kunci jawaban belum disetujui",answers_missing:"Jawaban siswa belum ada",student:"Murid",status:"Status",findings:"Temuan",score:"Nilai",open:"Periksa",none:"Belum mengumpulkan",waiting:"Menunggu koreksi",running:"Sedang dikoreksi",review:"Siap ditinjau",error:"Gagal",graded:"Selesai dinilai",pendingN:"belum diputuskan",unmatched:"File belum dikenali",assign:"Pilih murid",export:"Ekspor CSV",humanProof:"Human proof",accept:"Terima",reject:"Tolak",edit:"Ubah",undo:"Batalkan",verified:"Bukti cocok dengan jawaban",unverified:"Perlu dicek: bukti tidak ditemukan",absent:"Perlu dicek: bagian yang dianggap tidak ada",finalGrade:"Penilaian Anda",comment:"Catatan",saveGrade:"Simpan penilaian",gradeLocked:"Putuskan semua temuan dulu",truncated:"Jawaban sangat panjang: hanya bagian awal yang diperiksa AI.",feedback:"Umpan balik siswa",noFindings:"AI tidak menemukan kesalahan. Tetap periksa jawabannya.",answer:"Jawaban siswa",provider:"Layanan AI",baseUrl:"Alamat API",model:"Nama model",apiKey:"API key",keySaved:"tersimpan; kosongkan untuk tetap memakai",privacy:"Jawaban dikirim ke layanan AI yang dipilih setelah nama dan nomor murid disamarkan. Dengan Ollama, semuanya tetap di laptop. Periksa kebijakan data layanan Anda, terutama tier gratis.",aiLang:"Bahasa temuan",saved:"Tersimpan",uploaded:"cocok",unmatchedN:"belum dikenali",skipped:"dilewati",checking:"Mengoreksi",ai_not_configured:"Atur layanan AI di Pengaturan dulu",findings_pending:"Masih ada temuan yang belum diputuskan",score_required:"Isi nilai dulu",module_required:"Unggah modul dulu",class_not_linked:"Kelas ini belum mengikuti mata pelajaran",already_running:"Koreksi lain masih berjalan",unreadable_file:"File tidak bisa dibaca",name_required:"Nama wajib diisi",formats:"Format: PDF berteks, DOCX, ipynb, teks, dan kode. Gambar dan hasil scan belum bisa dibaca."},
+en:{tagline:"Find mistakes faster. The grade stays with you.",settings:"Settings",classes:"Classes",subjects:"Subjects",newClass:"New class name",newSubject:"New subject name",add:"Add",students:"students",studentList:"Student list",studentHint:"One student per line: number, name",linked:"Classes taking this subject",weeks:"Weeks",addWeek:"Add week",week:"Week",back:"Back",del:"Delete",confirmDel:"Delete? Everything inside goes too.",pickClass:"Class",module:"Module",key:"Answer key",answers:"Student answers",noModule:"No module yet",uploadModule:"Upload module",uploadKey:"Upload key",genKey:"Create with AI",genHint:"Needs a module first",draft:"AI draft: review and approve before use",approved:"Approved",noKey:"No answer key yet",save:"Save",approve:"Approve",uploadAnswers:"Upload answers (files or zip)",startCheck:"Start checking",cancel:"Stop",key_missing:"Answer key is missing",key_not_approved:"Answer key is not approved",answers_missing:"Student answers are missing",student:"Student",status:"Status",findings:"Findings",score:"Grade",open:"Review",none:"Not submitted",waiting:"Waiting",running:"Checking",review:"Ready to review",error:"Failed",graded:"Graded",pendingN:"undecided",unmatched:"Unrecognized files",assign:"Choose student",export:"Export CSV",humanProof:"Human proof",accept:"Accept",reject:"Reject",edit:"Edit",undo:"Undo",verified:"Evidence matches the answer",unverified:"Check this: evidence not found",absent:"Check this: claimed to be absent",finalGrade:"Your assessment",comment:"Note",saveGrade:"Save assessment",gradeLocked:"Decide every finding first",truncated:"Very long answer: the AI checked only the first part.",feedback:"Student feedback",noFindings:"The AI found no mistakes. Please still read the answer.",answer:"Student answer",provider:"AI service",baseUrl:"API URL",model:"Model name",apiKey:"API key",keySaved:"saved; leave empty to keep it",privacy:"Answers go to the chosen AI service after student names and numbers are masked. With Ollama everything stays on this laptop. Check your provider's data policy, especially free tiers.",aiLang:"Findings language",saved:"Saved",uploaded:"matched",unmatchedN:"unrecognized",skipped:"skipped",checking:"Checking",ai_not_configured:"Set up the AI service in Settings first",findings_pending:"Some findings are still undecided",score_required:"Enter a grade first",module_required:"Upload a module first",class_not_linked:"This class does not take the subject",already_running:"Another check is running",unreadable_file:"The file could not be read",name_required:"Name is required",formats:"Formats: text PDF, DOCX, ipynb, text and code. Images and scans cannot be read yet."}};
+const PRESETS={Gemini:"https://generativelanguage.googleapis.com/v1beta/openai/",OpenAI:"https://api.openai.com/v1",Ollama:"http://localhost:11434/v1"};
+let lang="id",view={name:"home"},poll=null;
+try{lang=localStorage.getItem("mm-lang")||"id"}catch(e){}
+const t=k=>T[lang][k]||k,$=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(m){const e=$("#toast");e.textContent=m;e.style.display="block";clearTimeout(e.h);e.h=setTimeout(()=>e.style.display="none",4000)}
+async function api(method,path,body){const r=await fetch(path,{method,headers:{"X-Markmark":"1"},body:body?JSON.stringify(body):undefined});const d=await r.json();if(!r.ok){toast(d.message||t(d.error));throw d}return d}
+function go(name,args={}){clearInterval(poll);view={name,...args};render()}
+async function render(){$("#tagline").textContent=t("tagline");$("#setBtn").textContent=t("settings");$("#lang").value=lang;document.documentElement.lang=lang;await ({home,cls,subject,week,review,settings})[view.name]()}
+$("#lang").onchange=e=>{lang=e.target.value;try{localStorage.setItem("mm-lang",lang)}catch(x){}render()};
+async function del(path,next){if(confirm(t("confirmDel"))){await api("DELETE",path);next()}}
+async function send(path,file){const buf=new Uint8Array(await file.arrayBuffer());let s="";for(let i=0;i<buf.length;i+=32768)s+=String.fromCharCode.apply(null,buf.subarray(i,i+32768));return api("POST",path,{filename:file.name,data:btoa(s)})}
+function picker(fn,multi){const i=document.createElement("input");i.type="file";i.multiple=!!multi;i.onchange=()=>fn([...i.files]);i.click()}
+
+async function home(){const d=await api("GET","/api/tree");
+app.innerHTML=`<div class="grid"><section class="panel"><h2>${t("classes")}</h2><ul class="plain">${d.classes.map(c=>`<li><button class="clickable" onclick="go('cls',{id:${c.id}})">${esc(c.name)}</button><span class="muted">${c.students} ${t("students")}</span></li>`).join("")}</ul>
+<div class="row" style="margin-top:8px"><input class="grow" id="nc" placeholder="${t("newClass")}" aria-label="${t("newClass")}"><button onclick="addTop('classes','#nc')">${t("add")}</button></div></section>
+<section class="panel"><h2>${t("subjects")}</h2><ul class="plain">${d.subjects.map(s=>`<li><button class="clickable" onclick="go('subject',{id:${s.id}})">${esc(s.name)}</button><span class="muted">${s.weeks.length} ${t("weeks").toLowerCase()}</span></li>`).join("")}</ul>
+<div class="row" style="margin-top:8px"><input class="grow" id="ns" placeholder="${t("newSubject")}" aria-label="${t("newSubject")}"><button onclick="addTop('subjects','#ns')">${t("add")}</button></div></section></div>`}
+async function addTop(k,s){await api("POST","/api/"+k,{name:$(s).value});render()}
+
+async function cls(){const d=await api("GET","/api/tree"),c=d.classes.find(x=>x.id==view.id),list=await api("GET",`/api/classes/${view.id}/students`);
+app.innerHTML=`<button onclick="go('home')">${t("back")}</button><section class="panel" style="margin-top:12px"><div class="row"><h2 class="grow">${esc(c.name)}</h2><button onclick="del('/api/classes/${c.id}',()=>go('home'))">${t("del")}</button></div>
+<h3>${t("studentList")}</h3><ul class="plain">${list.map(s=>`<li><span>${esc(s.name)} <span class="muted">${esc(s.student_no)}</span></span><button class="link" onclick="del('/api/students/${s.id}',render)">${t("del")}</button></li>`).join("")}</ul>
+<label style="margin-top:12px">${t("studentHint")}<textarea id="st"></textarea></label><button class="main" onclick="addStudents()">${t("add")}</button></section>`}
+async function addStudents(){await api("POST",`/api/classes/${view.id}/students`,{text:$("#st").value});render()}
+
+async function subject(){const d=await api("GET","/api/tree"),s=d.subjects.find(x=>x.id==view.id);
+app.innerHTML=`<button onclick="go('home')">${t("back")}</button><section class="panel" style="margin-top:12px"><div class="row"><h2 class="grow">${esc(s.name)}</h2><button onclick="del('/api/subjects/${s.id}',()=>go('home'))">${t("del")}</button></div>
+<h3>${t("linked")}</h3>${d.classes.map(c=>`<label class="check"><input type="checkbox" class="lc" value="${c.id}" ${s.class_ids.includes(c.id)?"checked":""} onchange="saveLinks()">${esc(c.name)}</label>`).join("")}
+<h3 style="margin-top:14px">${t("weeks")}</h3><ul class="plain">${s.weeks.map(w=>`<li><button class="clickable" onclick="go('week',{id:${w.id},sid:${s.id}})">${t("week")} ${w.number}</button><button class="link" onclick="del('/api/weeks/${w.id}',render)">${t("del")}</button></li>`).join("")}</ul>
+<button class="main" style="margin-top:8px" onclick="addWeek()">${t("addWeek")}</button></section>`}
+async function saveLinks(){await api("PUT",`/api/subjects/${view.id}/classes`,{class_ids:[...document.querySelectorAll(".lc:checked")].map(x=>+x.value)})}
+async function addWeek(){await api("POST",`/api/subjects/${view.id}/weeks`,{});render()}
+
+async function week(){const tr=await api("GET","/api/tree"),s=tr.subjects.find(x=>x.id==view.sid),cs=tr.classes.filter(c=>s.class_ids.includes(c.id));
+const head=`<button onclick="go('subject',{id:${s.id}})">${t("back")}</button>`;
+if(!cs.length){app.innerHTML=`${head}<section class="panel" style="margin-top:12px">${t("class_not_linked")}</section>`;return}
+if(!cs.some(c=>c.id==view.cid))view.cid=cs[0].id;
+const w=await api("GET",`/api/weeks/${view.id}?class=${view.cid}`),job=await api("GET","/api/job"),k=w.key;
+app.innerHTML=`${head}<section class="panel" style="margin-top:12px"><div class="row"><h2 class="grow">${esc(w.subject)} · ${t("week")} ${w.number}</h2><label>${t("pickClass")}<select onchange="view.cid=+this.value;render()">${cs.map(c=>`<option value="${c.id}" ${c.id==view.cid?"selected":""}>${esc(c.name)}</option>`).join("")}</select></label></div></section>
+<div class="grid"><section class="panel"><h3>${t("module")}</h3><ul class="plain">${w.modules.map(m=>`<li>${esc(m.filename)}<button class="link" onclick="del('/api/modules/${m.id}',render)">${t("del")}</button></li>`).join("")||`<li class="muted">${t("noModule")}</li>`}</ul><button onclick="up('modules')">${t("uploadModule")}</button></section>
+<section class="panel"><h3>${t("key")}</h3><p class="${k?k.status=="draft"?"warn":"good":"muted"}">${k?k.status=="draft"?t("draft"):t("approved"):t("noKey")}</p>${k?`<textarea id="kt">${esc(k.text)}</textarea><div class="row" style="margin:8px 0"><button onclick="saveKey(false)">${t("save")}</button>${k.status=="draft"?`<button class="main" onclick="saveKey(true)">${t("approve")}</button>`:""}</div>`:""}
+<div class="row"><button onclick="up('key')">${t("uploadKey")}</button><button id="gen" ${w.modules.length?"":"disabled"} title="${w.modules.length?"":t("genHint")}" onclick="genKey()">${t("genKey")}</button></div></section></div>
+<section class="panel"><div class="row"><h3 class="grow">${t("answers")}</h3><button onclick="upAnswers()">${t("uploadAnswers")}</button>
+<button class="main" id="start" ${w.blockers.length||job.running?"disabled":""} onclick="startCheck()">${t("startCheck")}</button><button id="stop" onclick="api('POST','/api/job/cancel')" ${job.running?"":"hidden"}>${t("cancel")}</button><a href="/api/weeks/${view.id}/export?class=${view.cid}"><button>${t("export")}</button></a></div>
+<p class="muted">${t("formats")}</p>${w.blockers.map(b=>`<p class="warn">${t(b)}</p>`).join("")}<p id="job" class="muted"></p>
+${w.unmatched.length?`<h3>${t("unmatched")}</h3><ul class="plain">${w.unmatched.map(u=>`<li>${esc(u.filename)}<select style="width:220px" aria-label="${t("assign")}" onchange="assign(${u.id},this.value)"><option value="">${t("assign")}</option>${w.students.map(s=>`<option value="${s.student_id}">${esc(s.name)}</option>`).join("")}</select></li>`).join("")}</ul>`:""}
+<table><tr><th>${t("student")}</th><th>${t("status")}</th><th>${t("findings")}</th><th>${t("score")}</th><th></th></tr>${w.students.map(rowOf).join("")}</table></section>`;
+if(job.running)watch()}
+function rowOf(s){const st=!s.status?t("none"):s.score!=null?t("graded"):t(s.status);return `<tr><td>${esc(s.name)}</td><td class="${s.status=="error"?"bad":""}" title="${esc(s.error)}">${st}</td><td>${s.findings||0}${s.pending?` <span class="warn">(${s.pending} ${t("pendingN")})</span>`:""}</td><td>${esc(s.score)}</td><td>${s.status=="review"?`<button onclick="go('review',{id:${s.submission_id},wid:${view.id},sid:${view.sid},cid:${view.cid}})">${t("open")}</button>`:""}</td></tr>`}
+function up(kind){picker(async f=>{for(const x of f)note(await send(`/api/weeks/${view.id}/${kind}`,x));render()},kind=="modules")}
+function upAnswers(){picker(async f=>{for(const x of f)note(await send(`/api/weeks/${view.id}/answers?class=${view.cid}`,x));render()},true)}
+function note(r){const s=r.skipped?.length?`${r.skipped.length} ${t("skipped")}: ${r.skipped.slice(0,3).map(x=>x.file.split("/").pop()+" ("+x.reason+")").join(", ")}`:"";toast(r.matched!=null?`${r.matched} ${t("uploaded")}, ${r.unmatched} ${t("unmatchedN")}. ${s}`:s||t("saved"))}
+async function saveKey(ok){await api("PUT",`/api/weeks/${view.id}/key`,{text:$("#kt").value,approve:ok});render()}
+async function genKey(){const b=$("#gen");b.disabled=true;b.textContent="…";try{await api("POST",`/api/weeks/${view.id}/key/generate`)}finally{render()}}
+async function assign(u,s){if(s){await api("POST",`/api/unmatched/${u}/assign`,{student_id:+s});render()}}
+async function startCheck(){await api("POST",`/api/weeks/${view.id}/check?class=${view.cid}`);render()}
+function watch(){clearInterval(poll);poll=setInterval(async()=>{const j=await api("GET","/api/job"),e=$("#job");if(e)e.textContent=`${t("checking")}: ${j.done+j.failed}/${j.total}`;if(!j.running){clearInterval(poll);render()}},1500)}
+
+async function review(){const d=await api("GET",`/api/submissions/${view.id}`),left=d.findings.filter(f=>f.status=="pending").length;
+const text=d.files.map(f=>`===== ${f.filename} =====\n${f.text}`).join("\n\n");let html=esc(text);
+for(const f of d.findings){if(!f.verified)continue;const p=esc(f.quote).trim().replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,"\\s+");html=html.replace(new RegExp(p,"i"),m=>`<mark id="q${f.id}">${m}</mark>`)}
+app.innerHTML=`<button onclick="go('week',{id:${view.wid},sid:${view.sid},cid:${view.cid}})">${t("back")}</button><section class="panel" style="margin-top:12px"><h2>${esc(d.name)}</h2><p class="muted">${esc(d.summary)}</p>${d.truncated?`<p class="warn">${t("truncated")}</p>`:""}</section>
+<div class="split"><div><section class="panel"><h3>${t("humanProof")}</h3>${d.findings.map(card).join("")||`<p class="muted">${t("noFindings")}</p>`}</section>
+<section class="panel"><h3>${t("finalGrade")}</h3><label>${t("score")}<input id="sc" value="${esc(d.score)}"></label><label>${t("comment")}<textarea id="cm">${esc(d.comment)}</textarea></label><button class="main" ${left?"disabled":""} onclick="saveGrade()">${t("saveGrade")}</button>${left?`<p class="warn">${t("gradeLocked")} (${left})</p>`:""}${d.feedback?`<h3 style="margin-top:12px">${t("feedback")}</h3><pre>${esc(d.feedback)}</pre>`:""}</section></div>
+<section class="panel"><h3>${t("answer")}</h3><pre>${html}</pre></section></div>`}
+function card(f){const pending=f.status=="pending",ev=f.verified?`<span class="good">${t("verified")}</span>`:`<span class="warn">${t(f.kind=="missing"&&!f.quote?"absent":"unverified")}</span>`;
+return `<div class="finding ${pending?"":"done"}"><span class="tag">${esc(f.kind)}</span><span class="tag">${esc(f.section)}</span>${pending?"":`<span class="tag">${t(f.status=="accepted"?"accept":f.status=="rejected"?"reject":"edit")}</span>`}<div id="d${f.id}">${esc(f.description)}</div>
+${f.quote?`<div class="muted" ${f.verified?`style="cursor:pointer" onclick="document.getElementById('q${f.id}')?.scrollIntoView({block:'center'})"`:""}>“${esc(f.quote)}”</div>`:""}<div style="font-size:13px">${ev}</div>
+<div class="row" style="margin-top:6px">${pending?`<button onclick="decide(${f.id},'accepted')">${t("accept")}</button><button onclick="decide(${f.id},'rejected')">${t("reject")}</button><button onclick="editF(${f.id})">${t("edit")}</button>`:`<button class="link" onclick="decide(${f.id},'pending')">${t("undo")}</button>`}</div></div>`}
+async function decide(id,status,description){await api("PUT",`/api/findings/${id}`,{status,description});render()}
+function editF(id){const e=$("#d"+id),old=e.textContent;e.innerHTML=`<textarea id="e${id}"></textarea><button onclick="decide(${id},'edited',$('#e${id}').value)">${t("save")}</button>`;$("#e"+id).value=old}
+async function saveGrade(){await api("PUT",`/api/submissions/${view.id}/grade`,{score:$("#sc").value,comment:$("#cm").value});toast(t("saved"));render()}
+
+async function settings(){const s=await api("GET","/api/settings");
+app.innerHTML=`<button onclick="go('home')">${t("back")}</button><section class="panel" style="margin-top:12px;max-width:560px"><h2>${t("settings")}</h2><label>${t("provider")}<select onchange="if(this.value)$('#bu').value=this.value"><option value="">-</option>${Object.entries(PRESETS).map(([k,v])=>`<option value="${v}">${k}</option>`).join("")}</select></label>
+<label>${t("baseUrl")}<input id="bu" value="${esc(s.base_url)}"></label><label>${t("model")}<input id="md" value="${esc(s.model)}"></label><label>${t("apiKey")}${s.has_key?` (${t("keySaved")})`:""}<input id="ak" type="password" autocomplete="off"></label>
+<label>${t("aiLang")}<select id="al"><option value="id" ${s.language=="id"?"selected":""}>Bahasa Indonesia</option><option value="en" ${s.language=="en"?"selected":""}>English</option></select></label><p class="muted">${t("privacy")}</p><button class="main" onclick="saveSet()">${t("save")}</button></section>`}
+async function saveSet(){await api("PUT","/api/settings",{base_url:$("#bu").value,model:$("#md").value,api_key:$("#ak").value,language:$("#al").value});toast(t("saved"));render()}
+render();
+</script>
+</body>
+</html>
