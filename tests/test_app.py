@@ -86,7 +86,7 @@ def wait_job(call):
         job = call("GET", "/api/job")[1]
         if not job["running"]:
             return job
-        time.sleep(0.05)
+        time.sleep(0.1)
     raise AssertionError("job did not finish")
 
 
@@ -194,12 +194,7 @@ def test_simulation_is_separate_and_complete(api):
     api("POST", f"/api/weeks/{by_number[3]}/key/generate")
     api("PUT", f"/api/weeks/{by_number[3]}/key", {"text": "ok", "approve": True})
     api("POST", f"/api/weeks/{by_number[2]}/check?class={cls}")
-    for _ in range(100):
-        job = api("GET", "/api/job")[1]
-        if not job["running"]:
-            break
-        time.sleep(0.1)
-    assert job["done"] == 8 and not FakeAI.seen
+    assert wait_job(api)["done"] == 8 and not FakeAI.seen
     api("POST", "/api/simulation/reset")
     assert len(api("GET", "/api/tree")[1]["classes"]) == 3
     api("PUT", "/api/simulation", {"on": False})

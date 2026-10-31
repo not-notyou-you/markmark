@@ -154,14 +154,6 @@ def _(c, b, q): core.put_settings(c, b)
 
 
 class Handler(BaseHTTPRequestHandler):
-    def simulation(self, body=None):
-        """These run outside a request connection because they switch databases."""
-        if self.command == "PUT":
-            core.set_simulation(body.get("on"))
-        elif self.command == "POST":
-            core.reset_simulation()
-        return {"on": db.SIMULATION}
-
     protocol_version = "HTTP/1.1"
 
     def log_message(self, *args):
@@ -178,6 +170,14 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header(key, value)
         self.end_headers()
         self.wfile.write(data)
+
+    def simulation(self, body=None):
+        """These run outside a request connection because they switch databases."""
+        if self.command == "PUT":
+            core.set_simulation(body.get("on"))
+        elif self.command == "POST":
+            core.reset_simulation()
+        return {"on": db.SIMULATION}
 
     def trusted(self):
         """Stop other websites open in the browser from reaching this server (DNS rebinding, CSRF)."""
