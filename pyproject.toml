@@ -20,7 +20,7 @@ markmark = "markmark.__main__:main"
 packages = ["markmark"]
 
 [tool.setuptools.package-data]
-markmark = ["static/*"]
+markmark = ["static/*", "static/fonts/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

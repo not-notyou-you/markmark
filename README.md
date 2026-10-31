@@ -14,6 +14,8 @@ Butuh [Python 3.10 atau lebih baru](https://www.python.org/downloads/). Saat mem
    - **macOS atau Linux:** `sh run.sh`
 3. Markmark terbuka di browser. Pemasangan pertama butuh internet dan beberapa menit.
 
+Saat dijalankan, Markmark mendaftarkan tautan `markmark://` untuk akun pengguna ini, sehingga tombol **Buka** di situs bisa menyalakan aplikasi di Windows dan Linux. Di macOS, tetap jalankan `sh run.sh`.
+
 ## Atur layanan AI
 
 Buka **Pengaturan**, pilih layanan, lalu isi nama model dan API key.

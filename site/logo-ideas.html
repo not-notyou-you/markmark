@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usulan Logo Markmark</title>
+<style>
+:root{--bg:#f4f1e9;--card:#fffdf8;--ink:#1f1d1a;--mute:#69645a;--red:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#191816;--card:#23211e;--ink:#efeade;--mute:#aaa497;--red:#f0837a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Segoe UI",sans-serif}
+main{max-width:1160px;margin:0 auto;padding:40px 24px}h1{font:700 38px Georgia,serif;margin:0}main>p{color:var(--mute);max-width:640px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-top:28px}
+article{background:var(--card);border-radius:12px;padding:20px}
+.big{height:150px;display:flex;align-items:center;justify-content:center;color:var(--ink)}.big svg{width:112px;height:112px}
+.lock{display:flex;align-items:center;gap:10px;font:700 24px Georgia,serif;margin:10px 0 14px}.lock svg{width:34px;height:34px}
+.tests{display:flex;gap:8px;align-items:center}.tile{width:58px;height:58px;border-radius:9px;display:grid;place-items:center}.tile svg{width:36px;height:36px}
+.light{background:#fff;color:#1f1d1a}.dark{background:#1f1d1a;color:#fff}.tiny svg{width:16px;height:16px;display:block}.tiny{margin-left:6px;color:var(--ink)}
+h2{font-size:17px;margin:14px 0 2px}article p{margin:0;color:var(--mute);font-size:15px}.pick{color:var(--red);font-weight:600;font-size:13px}
+</style>
+</head>
+<body><main><h1>10 usulan logo Markmark</h1>
+<p>Setiap logo ditampilkan besar, bersama nama, di latar terang dan gelap, dan pada ukuran 16 px untuk ikon browser. Merah melambangkan tinta koreksi.</p>
+<div class="grid" id="g"></div></main>
+<script>
+const R="#b3261e",L=[
+["Dua Centang","Dua tanda koreksi membentuk huruf M: AI menandai, manusia memastikan.",`<path d="M6 34l10 12 14-26M28 38l8 8 22-30" fill="none" stroke="${R}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`,1],
+["Stempel M","Stempel bulat seperti tanda sudah diperiksa.",`<circle cx="32" cy="32" r="27" fill="none" stroke="${R}" stroke-width="5"/><path d="M18 44V20l14 15 14-15v24" fill="none" stroke="${R}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>`],
+["Tanda Kutip","Kutipan bukti, inti janji produk.",`<path d="M10 28c0-9 6-15 15-16v7c-4 1-6 3-6 7h6v17H10zM36 28c0-9 6-15 15-16v7c-4 1-6 3-6 7h6v17H36z" fill="${R}"/><path d="M10 54h44" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>`],
+["Garis Bawah","Huruf M dengan garis gelombang merah.",`<path d="M12 40V12l20 20 20-20v28" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="M8 54q6-7 12 0t12 0 12 0 12 0" fill="none" stroke="${R}" stroke-width="5" stroke-linecap="round"/>`],
+["Kertas Bertanda","Lembar jawaban dengan satu centang.",`<path d="M14 6h26l12 12v40H14z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M22 36l8 9 13-20" fill="none" stroke="${R}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`],
+["Pena Merah","Ujung pena yang membentuk huruf M terbalik.",`<path d="M32 58L14 32V8l18 16L50 8v24z" fill="${R}"/><circle cx="32" cy="36" r="4" fill="#fff"/><path d="M32 40v18" stroke="#fff" stroke-width="3"/>`],
+["Sudut Temuan","Tanda kurung sudut yang menyorot bukti.",`<path d="M8 22V8h14M42 8h14v14M56 42v14H42M22 56H8V42" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 32l8 9 16-19" fill="none" stroke="${R}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`],
+["Dua Lapis M","Dua huruf M bertumpuk: temuan dan keputusan.",`<path d="M6 46V16l15 16 15-16v30" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><path d="M28 54V24l15 16 15-16v30" fill="none" stroke="${R}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>`],
+["Margin","Teks di kiri, catatan merah di tepi kanan.",`<path d="M8 14h30M8 26h30M8 38h30M8 50h20" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M46 8v48" stroke="${R}" stroke-width="3"/><circle cx="54" cy="26" r="5" fill="${R}"/>`],
+["Sidik Manusia","Lengkung sidik jari dengan centang: human proof.",`<path d="M12 40c-3-22 12-32 22-30 13 2 20 14 18 30M22 50c-3-8-3-14-1-20 3-8 17-10 20 1 1 5 1 9 0 13" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M26 33l6 7 11-14" fill="none" stroke="${R}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 2)"/>`]];
+const s=b=>`<svg viewBox="0 0 64 64" aria-hidden="true">${b}</svg>`;
+g.innerHTML=L.map(([n,d,b,p],i)=>`<article><div class="big">${s(b)}</div><div class="lock">${s(b)}Markmark</div><div class="tests"><div class="tile light">${s(b)}</div><div class="tile dark">${s(b.replaceAll(R,"#f0837a"))}</div><div class="tiny">${s(b)}</div></div><h2>${i+1}. ${n}</h2><p>${d}</p>${p?'<span class="pick">Rekomendasi</span>':""}</article>`).join("");
+</script>
+</body></html>

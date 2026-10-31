@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markmark — Koreksi lebih cepat, nilai tetap di tangan Anda</title>
+<meta name="description" content="Markmark membantu pengoreksi menemukan kesalahan pada jawaban siswa lebih cepat dan teliti. Setiap temuan punya bukti, dan nilai tetap ditentukan manusia.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 64 64' fill='none' stroke='%23b3261e' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M49 7H13a6 6 0 0 0-6 6v38a6 6 0 0 0 6 6h38a6 6 0 0 0 6-6V23'/%3E%3Cpath d='M18 21v25M45 35v11M26 28l7 7 24-24'/%3E%3C/svg%3E">
+<style>
+@font-face{font-family:"Fredoka";font-weight:500;font-display:swap;src:url(fonts/fredoka-latin-500.woff2) format("woff2")}
+@font-face{font-family:"Fredoka";font-weight:600;font-display:swap;src:url(fonts/fredoka-latin-600.woff2) format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-weight:400;font-display:swap;src:url(fonts/plus-jakarta-sans-latin-400.woff2) format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-weight:600;font-display:swap;src:url(fonts/plus-jakarta-sans-latin-600.woff2) format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-weight:700;font-display:swap;src:url(fonts/plus-jakarta-sans-latin-700.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:400;font-display:swap;src:url(fonts/jetbrains-mono-latin-400.woff2) format("woff2")}
+:root{--paper:#f6ecf0;--sheet:#fff8f6;--tint:#fbe3df;--ink:#2b2230;--mute:#655a68;--rule:#e8d6da;--red:#b3261e;--red-soft:#ffe0da;--green:#1f6b3c;--hl:#ffe69a;
+--head:"Fredoka",system-ui,sans-serif;--body:"Plus Jakarta Sans",system-ui,sans-serif;--mono:"JetBrains Mono",Consolas,monospace;
+--clay:14px 14px 30px rgba(140,90,105,.20),inset -7px -7px 14px rgba(170,110,125,.13),inset 7px 7px 14px rgba(255,255,255,.85);
+--clay-sm:7px 7px 15px rgba(140,90,105,.20),inset -4px -4px 8px rgba(170,110,125,.14),inset 4px 4px 8px rgba(255,255,255,.8);
+--clay-red:8px 8px 18px rgba(179,38,30,.32),inset -5px -5px 10px rgba(90,10,5,.28),inset 5px 5px 10px rgba(255,190,180,.5);
+--press:inset 5px 5px 10px rgba(140,90,105,.22),inset -4px -4px 8px rgba(255,255,255,.75)}
+@media (prefers-color-scheme:dark){:root{--paper:#231d29;--sheet:#312938;--tint:#3b3142;--ink:#f4edf2;--mute:#bbaebd;--rule:#4a3f52;--red:#ff9a90;--red-soft:#4c2b30;--green:#7fd6a0;--hl:#6b5414;
+--clay:12px 12px 26px rgba(0,0,0,.42),inset -6px -6px 12px rgba(0,0,0,.25),inset 6px 6px 12px rgba(255,255,255,.07);
+--clay-sm:6px 6px 13px rgba(0,0,0,.4),inset -3px -3px 7px rgba(0,0,0,.25),inset 3px 3px 7px rgba(255,255,255,.08);
+--clay-red:7px 7px 16px rgba(0,0,0,.45),inset -4px -4px 9px rgba(120,30,25,.4),inset 4px 4px 9px rgba(255,255,255,.35);
+--press:inset 5px 5px 10px rgba(0,0,0,.35),inset -3px -3px 7px rgba(255,255,255,.06)}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 var(--body)}
+a{color:inherit}.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:12px;z-index:5;margin:12px 0}nav .wrap{display:flex;align-items:center;gap:24px;height:68px;background:var(--sheet);border-radius:26px;box-shadow:var(--clay-sm);max-width:1100px}
+.brand{display:flex;align-items:center;gap:10px;font:600 24px var(--head);text-decoration:none}.brand svg{width:34px;height:34px;color:var(--red)}
+nav .wrap .btn+.btn{margin-left:-12px}.links{display:flex;gap:22px;margin-left:auto;font-size:15px;font-weight:600}.links a{text-decoration:none;color:var(--mute)}.links a:hover{color:var(--ink)}
+.btn{display:inline-block;padding:14px 24px;border-radius:20px;background:var(--red);color:var(--sheet);font-weight:700;text-decoration:none;box-shadow:var(--clay-red);transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(1px)}.btn.ghost{background:var(--sheet);color:var(--ink);box-shadow:var(--clay-sm)}nav .btn{padding:9px 18px;font-size:15px;border-radius:16px}
+.btn:focus-visible,a:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+h1,h2,h3{font-family:var(--head);font-weight:600;line-height:1.15;margin:0}
+.hero{display:grid;grid-template-columns:1fr 1.05fr;gap:56px;align-items:center;padding:64px 24px 80px}
+h1{font-size:clamp(40px,5.6vw,64px)}h1 em{font-style:normal;color:var(--red)}.lead{font-size:20px;color:var(--mute);margin:22px 0 28px}.cta{display:flex;gap:14px;flex-wrap:wrap}.small{font-size:14px;color:var(--mute);margin-top:16px}
+.sheet{background:var(--sheet);border-radius:36px;padding:30px;box-shadow:var(--clay);transform:rotate(1deg)}.sheet .h{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);margin-bottom:14px}
+.answer{font-size:16px;line-height:1.8}.answer u{text-decoration:underline wavy var(--red);text-underline-offset:4px}
+.note{background:var(--red-soft);border-radius:24px;padding:16px 18px;margin-top:18px;font-size:15px;box-shadow:var(--clay-sm)}.note b{display:block;color:var(--red);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.note q{display:block;font:13px var(--mono);margin:6px 0;quotes:none}.acts{display:flex;gap:8px;margin-top:10px;font-size:13px;font-weight:600}.acts span{background:var(--sheet);padding:5px 13px;border-radius:12px;box-shadow:var(--clay-sm)}
+section{padding:72px 0}.alt{background:var(--tint);border-radius:56px;margin:0 12px}.eyebrow{color:var(--red);font-weight:700;font-size:14px;margin:0 0 10px}
+h2{font-size:clamp(30px,4vw,44px);max-width:720px}.sub{color:var(--mute);max-width:640px;margin:14px 0 0}
+.steps{counter-reset:s;list-style:none;margin:44px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.steps li{counter-increment:s;background:var(--sheet);border-radius:30px;padding:22px;box-shadow:var(--clay)}.steps li:before{content:counter(s);display:grid;place-items:center;width:52px;height:52px;border-radius:18px;background:var(--red);color:var(--sheet);font:600 25px var(--head);box-shadow:var(--clay-red);margin-bottom:12px}
+h3{font-size:22px;margin:6px 0}.steps p,.feat p{margin:0;color:var(--mute);font-size:16px}
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px}.feat{background:var(--sheet);border-radius:30px;padding:24px;box-shadow:var(--clay)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px}.col{background:var(--sheet);border-radius:32px;padding:28px;box-shadow:var(--clay)}.col ul{margin:12px 0 0;padding:0;list-style:none}.col li{padding:7px 0 7px 26px;position:relative}.col li:before{position:absolute;left:0;font-weight:700}
+.do li:before{content:"\2713";color:var(--green)}.dont li:before{content:"\00d7";color:var(--red)}
+.cmd{background:var(--sheet);border-radius:32px;padding:28px;margin-top:32px;max-width:720px;box-shadow:var(--clay)}.cmd ol{margin:0;padding-left:22px}.cmd li{padding:5px 0}code{font:15px var(--mono);background:var(--tint);padding:3px 8px;border-radius:9px}
+details{background:var(--sheet);border-radius:24px;padding:16px 22px;max-width:760px;margin-bottom:14px;box-shadow:var(--clay-sm)}summary{font-weight:700;cursor:pointer}details p{margin:10px 0 0;color:var(--mute)}
+.final{text-align:center;background:#b3261e;color:#fff;border-radius:48px;margin:32px 12px 0;box-shadow:var(--clay-red)}.final h2{margin:0 auto 24px}.final .btn{background:#fff8f6;color:#b3261e;box-shadow:var(--clay-sm)}
+footer{padding:30px 0;color:var(--mute);font-size:14px}footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+@media (max-width:860px){.hero,.compare{grid-template-columns:1fr}.hero{padding-top:32px;gap:36px}.steps,.feats{grid-template-columns:1fr 1fr}.links{display:none}nav .btn.ghost{margin-left:auto}section{padding:52px 0}.sheet{transform:none}}
+@media (max-width:520px){.wrap,.hero{padding-left:16px;padding-right:16px}.steps,.feats{grid-template-columns:1fr}.btn{text-align:center}nav .wrap{margin:0 8px}.alt,.final{margin-left:0;margin-right:0;border-radius:36px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><a class="brand" href="#"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M49 7H13a6 6 0 0 0-6 6v38a6 6 0 0 0 6 6h38a6 6 0 0 0 6-6V23"/><path d="M18 21v25M45 35v11M26 28l7 7 24-24"/></svg>Markmark</a>
+<div class="links"><a href="#cara">Cara kerja</a><a href="#fitur">Fitur</a><a href="#pasang">Pasang</a><a href="#tanya">Tanya jawab</a></div>
+<a class="btn ghost" id="open" href="markmark://open" title="Menjalankan Markmark di laptop Anda">Buka</a><a class="btn" href="https://github.com/not-notyou-you/markmark/archive/refs/heads/main.zip">Unduh</a></div></nav>
+
+<main>
+<div class="wrap hero"><div>
+<h1>Temukan kesalahan lebih cepat. <em>Nilai tetap di tangan Anda.</em></h1>
+<p class="lead">Markmark membandingkan jawaban siswa dengan kunci jawaban dan menunjukkan buktinya. Anda memeriksa setiap temuan, lalu menentukan penilaiannya.</p>
+<div class="cta"><a class="btn" href="https://github.com/not-notyou-you/markmark/archive/refs/heads/main.zip">Unduh Markmark</a><a class="btn ghost" href="https://github.com/not-notyou-you/markmark">Lihat di GitHub</a></div>
+<p class="small">Windows, macOS, dan Linux. Membutuhkan Python 3.10 atau lebih baru.</p></div>
+<figure class="sheet" style="margin:0" aria-label="Contoh temuan pada jawaban siswa, dengan data contoh">
+<div class="h"><span>Minggu 3 · Statistika</span><span>Contoh tampilan</span></div>
+<p class="answer" style="margin:0">Dari data tersebut, nilai rata-rata kelas adalah 72. Karena median lebih rendah dari rata-rata, <u>distribusi data miring ke kiri</u>, sehingga sebagian besar siswa mendapat nilai rendah.</p>
+<figcaption class="note"><b>Temuan · konsep</b>Rata-rata lebih tinggi dari median menunjukkan distribusi miring ke kanan.<q>“distribusi data miring ke kiri”</q><div class="acts"><span>Terima</span><span>Tolak</span><span>Ubah</span></div></figcaption>
+</figure></div>
+
+<section class="alt" id="cara"><div class="wrap"><p class="eyebrow">Cara kerja</p><h2>Dari tumpukan jawaban ke keputusan yang berbukti</h2>
+<ol class="steps">
+<li><h3>Siapkan kelas</h3><p>Buat kelas, murid, mata pelajaran, dan minggu.</p></li>
+<li><h3>Unggah materi</h3><p>Masukkan modul, kunci jawaban, dan jawaban siswa.</p></li>
+<li><h3>Jalankan koreksi</h3><p>AI mencari kesalahan dan mengutip buktinya.</p></li>
+<li><h3>Putuskan</h3><p>Terima, tolak, atau ubah temuan, lalu beri nilai.</p></li>
+</ol></div></section>
+
+<section id="fitur"><div class="wrap"><p class="eyebrow">Fitur</p><h2>Dibuat untuk pekerjaan koreksi sehari-hari</h2>
+<div class="feats">
+<div class="feat"><h3>Bukti di setiap temuan</h3><p>Kutipan dicek ke jawaban asli. Yang tidak cocok ditandai perlu dicek.</p></div>
+<div class="feat"><h3>Human proof</h3><p>Nilai baru bisa disimpan setelah semua temuan diputuskan.</p></div>
+<div class="feat"><h3>Kunci jawaban dari modul</h3><p>Unggah sendiri, atau minta AI membuat draf untuk Anda setujui.</p></div>
+<div class="feat"><h3>Satu mata pelajaran, banyak kelas</h3><p>Materi per minggu dipakai bersama oleh semua kelas yang mengikutinya.</p></div>
+<div class="feat"><h3>Unggah sekaligus</h3><p>Zip jawaban dicocokkan ke murid lewat nomor atau nama.</p></div>
+<div class="feat"><h3>Ekspor rekap</h3><p>Nilai dan umpan balik yang sudah disetujui tersedia dalam CSV.</p></div>
+</div></div></section>
+
+<section class="alt"><div class="wrap"><p class="eyebrow">Peran yang jelas</p><h2>AI mencari. Pengoreksi memutuskan.</h2>
+<div class="compare"><div class="col do"><h3>Yang dilakukan Markmark</h3><ul><li>Mencari kesalahan dan bagian yang hilang</li><li>Menunjukkan bukti dalam jawaban</li><li>Menandai temuan yang perlu dicek</li></ul></div>
+<div class="col dont"><h3>Yang tidak dilakukan</h3><ul><li>Memberi nilai otomatis</li><li>Menjamin setiap temuan benar</li><li>Mendeteksi plagiarisme atau tulisan AI</li></ul></div></div></div></section>
+
+<section id="privasi"><div class="wrap"><p class="eyebrow">Data dan privasi</p><h2>Data Anda tersimpan di laptop Anda</h2>
+<p class="sub">Nama dan nomor murid disamarkan sebelum jawaban dikirim ke layanan AI. Dengan model lokal Ollama, jawaban tidak keluar dari laptop. Gemini, OpenAI, dan layanan kompatibel lain memakai API key milik Anda.</p></div></section>
+
+<section class="alt" id="pasang"><div class="wrap"><p class="eyebrow">Pasang</p><h2>Siap dalam beberapa langkah</h2>
+<div class="cmd"><ol><li>Pasang <a href="https://www.python.org/downloads/">Python 3.10 atau lebih baru</a>.</li><li><a href="https://github.com/not-notyou-you/markmark/archive/refs/heads/main.zip">Unduh Markmark</a> lalu ekstrak.</li><li>Windows: klik dua kali <code>run.bat</code>. macOS atau Linux: jalankan <code>sh run.sh</code>.</li><li>Buka <b>Pengaturan</b>, lalu pilih layanan AI.</li></ol></div></div></section>
+
+<section id="tanya"><div class="wrap"><p class="eyebrow">Tanya jawab</p><h2>Yang sering ditanyakan</h2><div style="margin-top:28px">
+<details><summary>Apakah Markmark memberi nilai?</summary><p>Tidak. Markmark hanya menampilkan temuan. Nilai selalu diisi pengoreksi.</p></details>
+<details><summary>Bisakah koreksi tanpa kunci jawaban?</summary><p>Tidak. Koreksi hanya berjalan jika kunci jawaban yang disetujui dan jawaban siswa tersedia.</p></details>
+<details><summary>Format apa yang didukung?</summary><p>PDF berteks, DOCX, ipynb, teks, kode, dan zip berisi file tersebut. Gambar dan hasil scan belum bisa dibaca.</p></details>
+<details><summary>Apakah butuh internet?</summary><p>Pemasangan pertama membutuhkan internet. Setelah itu, Ollama bisa berjalan di laptop, sedangkan layanan cloud tetap membutuhkan internet.</p></details>
+</div></div></section>
+
+<section class="final"><div class="wrap"><h2>Koreksi lebih cepat, tetap dengan keputusan Anda.</h2><a class="btn" href="https://github.com/not-notyou-you/markmark/archive/refs/heads/main.zip">Unduh Markmark</a></div></section>
+</main>
+<footer><div class="wrap"><span>Markmark · Every mark has a citation.</span><a href="https://github.com/not-notyou-you/markmark">GitHub</a></div></footer>
+<p id="hint" role="status" hidden style="position:fixed;right:16px;top:92px;max-width:300px;margin:0;padding:14px 18px;background:var(--sheet);border-radius:20px;box-shadow:var(--clay-sm);font-size:15px;z-index:6">Jika Markmark tidak terbuka, unduh lalu jalankan <code>run.bat</code> sekali untuk memasangnya.</p>
+<script>
+document.getElementById("open").addEventListener("click",()=>{let left=false;const off=()=>left=true;addEventListener("blur",off,{once:true});setTimeout(()=>{removeEventListener("blur",off);if(!left){const h=document.getElementById("hint");h.hidden=false;setTimeout(()=>h.hidden=true,8000)}},1800)});
+</script>
+</body>
+</html>

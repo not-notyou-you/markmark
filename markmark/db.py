@@ -50,6 +50,9 @@ CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 """
 
 
+SIMULATION = False  # simulation data lives in its own file and never mixes with real work
+
+
 def home():
     path = Path(os.environ.get("MARKMARK_HOME") or Path.home() / ".markmark")
     path.mkdir(parents=True, exist_ok=True)
@@ -57,7 +60,7 @@ def home():
 
 
 def connect():
-    conn = sqlite3.connect(home() / "markmark.db", timeout=30)
+    conn = sqlite3.connect(home() / ("simulation.db" if SIMULATION else "markmark.db"), timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys=ON")
     conn.execute("PRAGMA journal_mode=WAL")

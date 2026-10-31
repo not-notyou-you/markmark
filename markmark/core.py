@@ -12,6 +12,8 @@ try:
 except ImportError:
     keyring = None
 
+from . import seed  # noqa: E402
+
 SERVICE = "markmark"
 
 
@@ -80,6 +82,8 @@ def put_settings(conn, data):
 
 def ai_settings(conn):
     settings = get_settings(conn)
+    if db.SIMULATION:
+        return settings
     if not settings["base_url"] or not settings["model"]:
         raise Problem("ai_not_configured")
     return settings
@@ -167,7 +171,7 @@ def generate_key(conn, week_id):
     settings = ai_settings(conn)
     material = "\n\n".join(f"===== {m['filename']} =====\n{m['text']}" for m in modules)
     try:
-        text = ai.draft_key(settings, material, settings["language"])
+        text = seed.simulated_key(material) if db.SIMULATION else ai.draft_key(settings, material, settings["language"])
     except ai.AIError as e:
         raise Problem("ai_failed", 502, message=str(e))
     conn.execute("INSERT OR REPLACE INTO answer_keys VALUES(?,'ai','draft','',?)", (week_id, text))
@@ -303,7 +307,11 @@ def check_one(conn, settings, submission, key_text):
                               (submission["id"],)))
     answer = "\n\n".join(f"===== {f['filename']} =====\n{f['text']}" for f in files)
     hidden = ai.anonymize(answer, submission["name"], submission["student_no"])
-    found, summary, truncated = ai.check_answer(settings, key_text, hidden, settings["language"], JOB.cancel)
+    if db.SIMULATION:
+        found, summary = seed.simulated_check(hidden)
+        truncated = False
+    else:
+        found, summary, truncated = ai.check_answer(settings, key_text, hidden, settings["language"], JOB.cancel)
     reveal = lambda s: s.replace("STUDENT_NAME", submission["name"]).replace("STUDENT_NO", submission["student_no"])
     conn.execute("DELETE FROM findings WHERE submission_id=?", (submission["id"],))
     conn.executemany(
@@ -331,6 +339,8 @@ def _run(week_id, class_id):
             with conn:
                 conn.execute("UPDATE submissions SET status='running' WHERE id=?", (submission["id"],))
             try:
+                if db.SIMULATION:
+                    JOB.cancel.wait(0.5)  # so people can watch the progress
                 with conn:
                     check_one(conn, settings, submission, key_text)
                 done += 1
@@ -359,6 +369,40 @@ def start_check(conn, week_id, class_id):
         JOB.state.update(running=True, done=0, total=0, failed=0)
     JOB.cancel.clear()
     threading.Thread(target=_run, args=(week_id, class_id), daemon=True).start()
+
+
+# ---------- simulation ----------
+
+def _fill_simulation():
+    db.init()
+    with db.connect() as conn:
+        conn.execute("DELETE FROM classes")
+        conn.execute("DELETE FROM subjects")
+        seed.seed(conn)
+
+
+def set_simulation(on):
+    if JOB.snapshot()["running"]:
+        raise Problem("already_running", 409)
+    db.SIMULATION = bool(on)
+    if db.SIMULATION:
+        db.init()
+        with db.connect() as conn:
+            empty = conn.execute("SELECT 1 FROM classes LIMIT 1").fetchone() is None
+        if empty:
+            try:
+                _fill_simulation()
+            except Exception:
+                db.SIMULATION = False
+                raise
+
+
+def reset_simulation():
+    if not db.SIMULATION:
+        raise Problem("simulation_off")
+    if JOB.snapshot()["running"]:
+        raise Problem("already_running", 409)
+    _fill_simulation()
 
 
 # ---------- human proof ----------

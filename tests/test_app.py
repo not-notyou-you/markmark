@@ -174,6 +174,38 @@ def test_unmatched_can_be_assigned(api):
     assert not view["unmatched"] and view["students"][0]["status"] == "waiting"
 
 
+def test_simulation_is_separate_and_complete(api):
+    api("POST", "/api/classes", {"name": "Real"})
+    assert api("PUT", "/api/simulation", {"on": True})[1]["on"]
+    tree = api("GET", "/api/tree")[1]
+    assert len(tree["subjects"]) == 2 and len(tree["classes"]) == 3
+    assert all(c["students"] == 10 for c in tree["classes"])
+    assert "Real" not in [c["name"] for c in tree["classes"]]
+    cls = tree["classes"][1]["id"]
+    weeks = tree["subjects"][0]["weeks"] + tree["subjects"][1]["weeks"]
+    assert len(weeks) == 6
+    by_number = {w["number"]: w["id"] for w in tree["subjects"][0]["weeks"]}
+    first = api("GET", f"/api/weeks/{by_number[1]}?class={cls}")[1]
+    assert any(s["score"] for s in first["students"]) and any(s["pending"] for s in first["students"])
+    second = api("GET", f"/api/weeks/{by_number[2]}?class={cls}")[1]
+    assert second["unmatched"] and not second["blockers"]
+    third = api("GET", f"/api/weeks/{by_number[3]}?class={cls}")[1]
+    assert third["blockers"] == ["key_missing"] and third["modules"]
+    api("POST", f"/api/weeks/{by_number[3]}/key/generate")
+    api("PUT", f"/api/weeks/{by_number[3]}/key", {"text": "ok", "approve": True})
+    api("POST", f"/api/weeks/{by_number[2]}/check?class={cls}")
+    for _ in range(100):
+        job = api("GET", "/api/job")[1]
+        if not job["running"]:
+            break
+        time.sleep(0.1)
+    assert job["done"] == 8 and not FakeAI.seen
+    api("POST", "/api/simulation/reset")
+    assert len(api("GET", "/api/tree")[1]["classes"]) == 3
+    api("PUT", "/api/simulation", {"on": False})
+    assert [c["name"] for c in api("GET", "/api/tree")[1]["classes"]] == ["Real"]
+
+
 def test_key_never_returned(api):
     settings = api("GET", "/api/settings")[1]
     assert settings["has_key"] and "api_key" not in settings

@@ -78,6 +78,10 @@ def add_week(c, b, q, i):
                             (i, number, b.get("title", ""))).lastrowid}
 
 
+@route("PUT", r"/api/weeks/(\d+)")
+def _(c, b, q, i): c.execute("UPDATE weeks SET title=? WHERE id=?", (str(b.get("title", "")).strip(), i))
+
+
 @route("DELETE", r"/api/weeks/(\d+)")
 def _(c, b, q, i): c.execute("DELETE FROM weeks WHERE id=?", (i,))
 
@@ -150,6 +154,14 @@ def _(c, b, q): core.put_settings(c, b)
 
 
 class Handler(BaseHTTPRequestHandler):
+    def simulation(self, body=None):
+        """These run outside a request connection because they switch databases."""
+        if self.command == "PUT":
+            core.set_simulation(body.get("on"))
+        elif self.command == "POST":
+            core.reset_simulation()
+        return {"on": db.SIMULATION}
+
     protocol_version = "HTTP/1.1"
 
     def log_message(self, *args):
@@ -185,6 +197,10 @@ class Handler(BaseHTTPRequestHandler):
         url = urlparse(self.path)
         if self.command == "GET" and url.path == "/":
             return self.reply((STATIC / "index.html").read_bytes(), "text/html; charset=utf-8")
+        if self.command == "GET" and (m := re.fullmatch(r"/static/fonts/([\w-]+\.woff2)", url.path)):
+            path = STATIC / "fonts" / m[1]
+            if path.exists():
+                return self.reply(path.read_bytes(), "font/woff2")
         query = {k: v[0] for k, v in parse_qs(url.query).items()}
         if self.command == "GET" and (m := re.fullmatch(r"/api/weeks/(\d+)/export", url.path)):
             conn = db.connect()
@@ -194,6 +210,11 @@ class Handler(BaseHTTPRequestHandler):
                 conn.close()
             return self.reply("﻿".encode() + text.encode(), "text/csv; charset=utf-8",
                               extra={"Content-Disposition": 'attachment; filename="markmark.csv"'})
+        if url.path in ("/api/simulation", "/api/simulation/reset"):
+            try:
+                return self.reply(self.simulation(json.loads(raw) if raw else {}))
+            except core.Problem as e:
+                return self.reply({"error": e.code, **e.detail}, status=e.status)
         for method, pattern, fn in ROUTES:
             match = pattern.match(url.path)
             if method == self.command and match:
@@ -214,6 +235,10 @@ class Handler(BaseHTTPRequestHandler):
     do_GET = do_POST = do_PUT = do_DELETE = handle_any
 
 
+class Server(ThreadingHTTPServer):
+    allow_reuse_address = False  # on Windows it would let a second copy share the port with an old one
+
+
 def make_server(port=8765):
     db.init()
-    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    return Server(("127.0.0.1", port), Handler)
